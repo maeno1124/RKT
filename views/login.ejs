@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>はなみち学習室</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @font-face {
+      font-family: 'ChalkJP';
+      src: url('/fonts/Chalk-JP.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-white text-gray-800 font-sans">
+
+  <!-- ヘッダー -->
+  <header class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-blue-600">トクイナール</h1>
+      <nav class="space-x-6 hidden md:block">
+        <% navLinks.forEach(link => { %>
+          <a href="<%= link.href %>" class="text-gray-700 hover:text-blue-600"><%= link.label %></a>
+        <% }) %>
+      </nav>
+    </div>
+  </header>
+
+  <!-- メイン -->
+  <main class="flex-grow relative bg-blue-50 flex justify-start items-center px-8" style="font-family: 'ChalkJP', sans-serif;">
+    
+    <!-- 背景画像 -->
+    <img
+      src="https://webreak.jp/images/pixabay.com/architecture-0002@1200-675.jpg"
+      class="absolute inset-0 w-full h-full object-cover brightness-75"
+    />
+
+    <!-- フォーム -->
+    <section class="relative bg-transparent max-w-md w-full z-10 mx-auto" style="max-width: 420px;">
+      <h3 class="text-2xl font-bold mb-6 text-blue-600">ログイン</h3>
+
+      <% if (error) { %>
+        <p class="text-red-600 text-sm mb-4"><%= error %></p>
+      <% } %>
+
+     <form action="/login" method="POST" class="space-y-6">
+
+  <div class="bg-white bg-opacity-80 rounded-md p-4 space-y-4">
+    <div>
+      <label for="userId" class="block text-sm font-medium">ユーザー名</label>
+      <input
+        type="text"
+        id="userId"
+        name="userId"
+        required
+        class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+
+    <div>
+      <label for="password" class="block text-sm font-medium">パスワード</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        required
+        class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+  </div>
+
+  <button
+    type="submit"
+    class="w-full bg-white bg-opacity-80 text-blue-700 py-2 rounded-md hover:bg-opacity-100 transition font-semibold"
+  >
+    ログイン
+  </button>
+
+  <!-- ▼ 追加部分 ▼ -->
+  <div class="text-right mt-2">
+    <a href="/forgot-password" class="text-sm text-blue-600 hover:underline">
+      パスワードを忘れた方はこちら
+    </a>
+  </div>
+  <!-- ▲ 追加部分 ▲ -->
+
+</form>
+
+    </section>
+  </main>
+
+  <!-- フッター -->
+  <footer class="bg-gray-100">
+    <div class="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
+      <p>&copy; <%= new Date().getFullYear() %> はなみち学習室. All rights reserved.</p>
+      <div class="space-x-4 mt-4 md:mt-0">
+        <a href="/privacy" class="hover:underline">プライバシーポリシー</a>
+        <a href="/terms" class="hover:underline">利用規約</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

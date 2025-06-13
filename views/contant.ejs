@@ -1,0 +1,84 @@
+<!DOCTYPE html> <html lang="ja"> <head> <meta charset="UTF-8"> <title>お問い合わせ | トクイナール</title> <style>
+    /* bodyセレクタ: ページの全体的なスタイルを設定 */
+    body {
+      font-family: Arial, sans-serif; /* フォントの種類を指定 */
+      padding: 2em; /* ページ全体の余白を設定 */
+      background-color: #f9f9f9; /* 背景色を薄い灰色に設定 */
+    }
+
+    /* h1セレクタ: h1タグ（大見出し）のスタイルを設定 */
+    h1 {
+      color: #2c3e50; /* 文字色を濃い青灰色に設定 */
+    }
+
+    /* formセレクタ: formタグ（入力フォーム全体）のスタイルを設定 */
+    form {
+      background: white; /* 背景色を白に設定 */
+      padding: 2em; /* フォームの内側の余白を設定 */
+      border-radius: 8px; /* 角を丸くする */
+      max-width: 600px; /* 最大幅を600pxに制限 */
+      margin: auto; /* 中央揃えにする */
+      box-shadow: 0 0 10px rgba(0,0,0,0.1); /* 薄い影をつけて立体感を出す */
+    }
+
+    /* labelセレクタ: labelタグ（入力項目のラベル）のスタイルを設定 */
+    label {
+      display: block; /* ブロック要素として表示し、改行されるようにする */
+      margin-top: 1em; /* 上の要素との間に余白を設ける */
+      font-weight: bold; /* 文字を太字にする */
+    }
+
+    /* 複数のセレクタに同じスタイルを適用 */
+    input, textarea, select {
+      width: 100%; /* 親要素の幅いっぱいに広げる */
+      padding: 0.8em; /* 内側の余白を設定 */
+      margin-top: 0.5em; /* 上の要素との間に少し余白を設ける */
+      border: 1px solid #ccc; /* 枠線を設定 */
+      border-radius: 4px; /* 角を少し丸くする */
+      box-sizing: border-box; /* paddingとborderを幅(width)に含めて計算する */
+    }
+
+    /* buttonセレクタ: buttonタグのスタイルを設定 */
+    button {
+      margin-top: 1.5em; /* 上の要素との間に余白を設ける */
+      padding: 0.8em 1.5em; /* 内側の余白（上下、左右）を設定 */
+      background-color: #3498db; /* 背景色を青色に設定 */
+      color: white; /* 文字色を白に設定 */
+      border: none; /* 枠線をなくす */
+      border-radius: 4px; /* 角を少し丸くする */
+      font-size: 1em; /* フォントサイズを設定 */
+      cursor: pointer; /* マウスカーソルをポインター（指の形）にする */
+    }
+
+    /* button:hover疑似クラス: ボタンにマウスが乗った時のスタイルを設定 */
+    button:hover {
+      background-color: #2980b9; /* 背景色を少し濃い青色に変化させる */
+    }
+  </style>
+</head>
+<body> <h1>お問い合わせ</h1>
+  <p>「トクイナール」に関するご質問・ご意見は、下記のフォームよりお寄せください。</p>
+
+  <form>
+    <label for="name">お名前</label>
+    <input type="text" id="name" name="お名前" required>
+
+    <label for="email">メールアドレス</label>
+    <input type="email" id="email" name="メールアドレス" required>
+
+    <label for="category">お問い合わせ種別</label>
+    <select id="category" name="お問い合わせ種別">
+      <option value="general">一般的なご質問</option>
+      <option value="technical">システムに関するご質問</option>
+      <option value="content">教材内容に関するご意見</option>
+      <option value="other">その他</option>
+    </select>
+
+    <label for="message">お問い合わせ内容</label>
+    <textarea id="message" name="お問い合わせ内容" rows="6" required></textarea>
+
+    <button type="submit">送信する</button>
+  </form>
+
+</body>
+</html>
