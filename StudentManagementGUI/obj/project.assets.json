@@ -1460,11 +1460,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/maenoshuuichirou/prac_html_2025/StudentManagementGUI/StudentManagementGUI.csproj",
+      "projectUniqueName": "/Users/maenoshuuichirou/github/RKT./StudentManagementGUI/StudentManagementGUI.csproj",
       "projectName": "StudentManagementGUI",
-      "projectPath": "/Users/maenoshuuichirou/prac_html_2025/StudentManagementGUI/StudentManagementGUI.csproj",
+      "projectPath": "/Users/maenoshuuichirou/github/RKT./StudentManagementGUI/StudentManagementGUI.csproj",
       "packagesPath": "/Users/maenoshuuichirou/.nuget/packages/",
-      "outputPath": "/Users/maenoshuuichirou/prac_html_2025/StudentManagementGUI/obj/",
+      "outputPath": "/Users/maenoshuuichirou/github/RKT./StudentManagementGUI/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/maenoshuuichirou/.nuget/NuGet/NuGet.Config"
