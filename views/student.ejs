@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>学生用画面 - はなみち学習室</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -21,7 +21,7 @@
     <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
       <h1 class="text-2xl font-bold text-green-600">はなみち学習室</h1>
       <nav class="space-x-6 hidden md:flex items-center">
-        <span class="text-gray-700">ようこそ、<%= user.userId %> さん</span>
+        <span class="text-gray-700">ようこそ、<%= user.name %> さん</span>
         <a href="#" id="logoutLink" class="text-gray-700 hover:text-green-600 cursor-pointer">ログアウト</a>
       </nav>
     </div>
@@ -31,27 +31,63 @@
     <!-- 背景画像 -->
     <img
       src="https://webreak.jp/images/pixabay.com/architecture-0002@1200-675.jpg"
-      alt="背景画像"
+      alt="教室の背景画像"
       class="absolute inset-0 w-full h-full object-cover brightness-75"
       />
     <div class="relative bg-white bg-opacity-90 rounded-lg p-8 shadow-lg w-full max-w-md text-center space-y-8 z-10">
       <h2 class="text-3xl font-bold text-green-700">学生用画面</h2>
 
+      <!-- これまでの学習成果表示エリア (削除) -->
+      
+      <!-- 学習記録を確認するボタン -->
       <button
         id="recordBtn"
         onclick="checkRecord()"
-        class="w-full bg-green-500 text-white py-3 rounded-md hover:bg-green-600 transition text-lg font-semibold"
+        class="w-full bg-green-500 text-white py-5 px-8 rounded-xl hover:bg-green-600 transition text-2xl font-semibold shadow-lg"
       >
         学習記録を確認する
       </button>
 
+      <!-- 学習を始めるボタン (ポップアップ表示トリガー) -->
       <button
         id="studyBtn"
-        onclick="startStudy()"
-        class="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition text-lg font-semibold"
+        onclick="openLearningOptions()"
+        class="w-full bg-blue-600 text-white py-5 px-8 rounded-xl hover:bg-blue-700 transition text-2xl font-semibold shadow-lg"
       >
         学習を始める
       </button>
+
+      <!-- 学習オプション選択ポップアップ -->
+      <div id="learningOptionsModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-sm space-y-4 relative">
+          <button
+            onclick="closeLearningOptions()"
+            class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-3xl font-bold"
+          >
+            &times;
+          </button>
+          <h3 class="text-2xl font-bold text-green-700 mb-4">学習内容を選択</h3>
+          <button
+            onclick="startSelfLearning()"
+            class="w-full bg-purple-500 text-white py-4 px-6 rounded-lg hover:bg-purple-600 transition text-xl font-semibold shadow-md"
+          >
+            はなみち学習室専用教材学習
+          </button>
+          <button
+            onclick="startIndividualLearning()"
+            class="w-full bg-red-500 text-white py-4 px-6 rounded-lg hover:bg-red-600 transition text-xl font-semibold shadow-md"
+          >
+            AI使用個別苦手克服学習
+          </button>
+          <button
+            onclick="startGeneralStudy()"
+            class="w-full bg-yellow-500 text-white py-4 px-6 rounded-lg hover:bg-yellow-600 transition text-xl font-semibold shadow-md"
+          >
+            一般教材学習
+          </button>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -66,19 +102,45 @@
   </footer>
 
   <script>
+    // 学習記録を確認する
     function checkRecord() {
       window.location.href = "/learning-records";
     }
-    function startStudy() {
-      window.location.href = "/learning";
+
+    // 学習オプションポップアップを開く
+    function openLearningOptions() {
+      document.getElementById('learningOptionsModal').classList.remove('hidden');
     }
 
+    // 学習オプションポップアップを閉じる
+    function closeLearningOptions() {
+      document.getElementById('learningOptionsModal').classList.add('hidden');
+    }
+
+    // 各学習ページへの遷移
+    function startSelfLearning() {
+      window.location.href = "/selfLearning";
+    }
+    function startIndividualLearning() {
+      window.location.href = "/individual_learning";
+    }
+    function startGeneralStudy() {
+      window.location.href = "/study";
+    }
+
+    // ログアウト処理
     document.getElementById('logoutLink').addEventListener('click', function(e) {
       e.preventDefault();
+      
+      // 最終的な学習時間を取得（他の学習ページでsessionStorageに保存されている想定）
+      const finalStudyTime = sessionStorage.getItem('totalSessionStudyTime') || '0';
+
       fetch('/logout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accumulatedStudyTime: parseFloat(finalStudyTime) }) // 時間を送信
       }).then(res => {
+        sessionStorage.removeItem('totalSessionStudyTime'); // ログアウト成功時にセッション時間をクリア
         if (res.redirected) {
           window.location.href = res.url;
         } else {
@@ -86,7 +148,7 @@
         }
       }).catch(err => {
         console.error('ログアウトに失敗しました:', err);
-        alert('ログアウトに失敗しました。');
+        console.error('ログアウトに失敗しました。');
       });
     });
   </script>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新規教師登録 - はなみち学習室</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @font-face {
+      font-family: 'ChalkJP';
+      src: url('/fonts/Chalk-JP.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-white text-gray-800" style="font-family: 'ChalkJP', sans-serif;">
+
+  <header class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-green-600">はなみち学習室</h1>
+      <nav class="space-x-6 hidden md:block">
+        <a href="#" id="logoutLink" class="text-gray-700 hover:text-green-600 cursor-pointer">ログアウト</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-grow relative bg-green-50 flex justify-center items-start px-4 py-12">
+    <!-- 背景画像 -->
+    <img
+      src="https://webreak.jp/images/pixabay.com/architecture-0002@1200-675.jpg"
+      alt="教室の背景画像"
+      class="absolute inset-0 w-full h-full object-cover brightness-75"
+    />
+
+    <div class="relative z-10 w-full max-w-2xl space-y-8 bg-white bg-opacity-90 rounded-lg p-8 shadow-lg">
+      <!-- タイトル -->
+      <div class="text-center">
+        <h2 class="text-3xl font-bold text-green-700">新規教師登録</h2>
+        <p class="text-gray-600 mt-2">新しい教師の情報を入力してください。</p>
+      </div>
+      
+      <!-- メッセージ表示エリア -->
+      <% if (success) { %>
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded" role="alert">
+          <p class="font-bold">成功！</p>
+          <p><%= success %></p>
+        </div>
+      <% } %>
+      <% if (error) { %>
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded" role="alert">
+          <p class="font-bold">エラー！</p>
+          <p><%= error %></p>
+        </div>
+      <% } %>
+
+      <!-- 教師登録フォーム -->
+      <section>
+        <form action="/add-teacher" method="POST" class="space-y-4">
+          <!-- 1行目: 教師IDと氏名 -->
+          <div class="flex flex-col md:flex-row md:space-x-4">
+            <div class="flex-1">
+              <label for="teacherId" class="block text-sm font-medium">教師ID</label>
+              <input type="text" id="teacherId" name="teacherId" required
+                class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div class="flex-1 mt-4 md:mt-0">
+              <label for="teacherName" class="block text-sm font-medium">氏名</label>
+              <input type="text" id="teacherName" name="teacherName" required
+                class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+          </div>
+          <!-- 2行目: パスワードと年齢 -->
+          <div class="flex flex-col md:flex-row md:space-x-4">
+            <div class="flex-1">
+              <label for="password" class="block text-sm font-medium">パスワード</label>
+              <input type="text" id="password" name="password" required
+                class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div class="flex-1 mt-4 md:mt-0">
+              <label for="age" class="block text-sm font-medium">年齢</label>
+              <input type="number" id="age" name="age"
+                class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition font-semibold"
+          >
+            この内容で登録する
+          </button>
+        </form>
+      </section>
+
+      <!-- 管理画面に戻るリンク -->
+      <div class="text-center">
+          <a href="/teacher" class="text-sm text-gray-600 hover:text-blue-700 hover:underline">管理画面に戻る</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- フッター -->
+  <footer class="bg-gray-100">
+    <div class="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
+        <p>&copy; <%= new Date().getFullYear() %> はなみち学習室. All rights reserved.</p>
+        <div class="space-x-4 mt-4 md:mt-0">
+          <a href="/privacy" class="hover:underline">プライバシーポリシー</a>
+          <a href="/terms" class="hover:underline">利用規約</a>
+        </div>
+      </div>
+  </footer>
+
+  <script>
+    document.getElementById('logoutLink').addEventListener('click', function (e) {
+      e.preventDefault();
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/logout';
+      document.body.appendChild(form);
+      form.submit();
+    });
+  </script>
+
+</body>
+</html>

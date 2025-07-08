@@ -1,138 +1,29 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>学習</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
-<style>
-  /* Reset & base */
-  * {
-    box-sizing: border-box;
-  }
-  body {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    font-family: 'Roboto', Arial, sans-serif;
-    color: #fff;
-    margin: 0;
-    padding: 40px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-  }
-
-  h1 {
-    font-weight: 700;
-    font-size: 2.4rem;
-    margin-bottom: 1rem;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.4);
-  }
-
-  .container {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 30px 40px;
-    max-width: 480px;
-    width: 100%;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    backdrop-filter: blur(10px);
-  }
-
-  .question {
-    font-size: 1.4rem;
-    margin-bottom: 30px;
-    font-weight: 500;
-    text-align: center;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-  }
-
-  .choices button {
-    width: 100%;
-    padding: 15px 20px;
-    margin: 12px 0;
-    font-size: 1.1rem;
-    background: rgba(255, 255, 255, 0.15);
-    border: none;
-    border-radius: 12px;
-    color: white;
-    cursor: pointer;
-    font-weight: 600;
-    text-align: left;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .choices button:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateX(5px);
-  }
-
-  .choices button:focus {
-    outline: 3px solid #ffd700;
-    outline-offset: 2px;
-  }
-
-  .result {
-    margin-top: 30px;
-    font-weight: 700;
-    font-size: 1.3rem;
-    text-align: center;
-    min-height: 48px;
-    user-select: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .result.correct {
-    color: #4caf50;
-  }
-  .result.incorrect {
-    color: #f44336;
-  }
-
-  /* アイコン */
-  .icon {
-    width: 24px;
-    height: 24px;
-  }
-
-  @media (max-width: 500px) {
-    body {
-      padding: 20px 10px;
-    }
-    .container {
-      padding: 20px 25px;
-    }
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>学習</title>
 </head>
 <body>
   <h1>英語の問題</h1>
-  <div class="container">
-    <div class="question">
-      問題：次のうち、「走る」の意味に最も近いものはどれ？
+  <div>
+    <p>問題：次のうち、「走る」の意味に最も近いものはどれ？</p>
+
+    <div>
+      <button onclick="checkAnswer(false)">A. sleep</button><br>
+      <button onclick="checkAnswer(false)">B. read</button><br>
+      <button onclick="checkAnswer(true)">C. run</button><br>
+      <button onclick="checkAnswer(false)">D. write</button><br>
     </div>
 
-    <div class="choices">
-      <button onclick="checkAnswer(this, false)">A. sleep</button>
-      <button onclick="checkAnswer(this, false)">B. read</button>
-      <button onclick="checkAnswer(this, true)">C. run</button>
-      <button onclick="checkAnswer(this, false)">D. write</button>
-    </div>
-
-    <div class="result" id="result"></div>
+    <div id="result"></div>
   </div>
 
   <script>
     let startTime = Date.now();
 
-    // ページ離脱時に時間を送信（sendBeaconで確実に）
+    // ページ離脱時に時間を送信
     window.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
         sendTime();
@@ -154,30 +45,26 @@
       if (navigator.sendBeacon) {
         navigator.sendBeacon('/save_time', data);
       } else {
-        // フォールバック
         fetch('/save_time', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: data
+          body: data,
+          keepalive: true
         });
       }
     }
 
-    function checkAnswer(button, isCorrect) {
+    function checkAnswer(isCorrect) {
       const result = document.getElementById('result');
-      // ボタン無効化（連打防止）
-      document.querySelectorAll('.choices button').forEach(btn => btn.disabled = true);
-
-      // アイコンSVG
-      const correctIcon = `<svg class="icon" fill="#4caf50" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
-      const wrongIcon = `<svg class="icon" fill="#f44336" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
+      // すべてのボタンを無効化
+      document.querySelectorAll('button').forEach(btn => btn.disabled = true);
 
       if (isCorrect) {
-        result.innerHTML = `${correctIcon} 正解！よくできました！`;
-        result.className = "result correct";
+        result.innerHTML = `正解！よくできました！`;
+        result.style.color = 'green';
       } else {
-        result.innerHTML = `${wrongIcon} 不正解です。もう一度考えてみましょう。`;
-        result.className = "result incorrect";
+        result.innerHTML = `不正解です。もう一度考えてみましょう。`;
+        result.style.color = 'red';
       }
     }
   </script>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>一般教材学習</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @font-face {
+      font-family: 'ChalkJP';
+      src: url('/fonts/Chalk-JP.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-white text-gray-800" style="font-family: 'ChalkJP', sans-serif;">
+
+  <header class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-green-600">はなみち学習室</h1>
+      <nav class="space-x-6 hidden md:flex items-center">
+        <span class="text-gray-700">ようこそ、<%= user.name %> さん</span>
+        <a href="#" id="logoutLink" class="text-gray-700 hover:text-green-600 cursor-pointer">ログアウト</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-grow flex justify-center items-center px-4 py-12 bg-green-50 relative">
+    <!-- 背景画像 -->
+    <img
+      src="https://webreak.jp/images/pixabay.com/architecture-0002@1200-675.jpg"
+      alt="教室の背景画像"
+      class="absolute inset-0 w-full h-full object-cover brightness-75"
+      />
+    <div class="relative bg-white bg-opacity-90 rounded-lg p-8 shadow-lg w-full max-w-2xl text-center space-y-8 z-10">
+      <h2 class="text-3xl font-bold text-green-700">一般教材学習</h2>
+
+      <% if (problem) { %>
+        <div class="bg-white p-6 rounded-lg shadow-md text-left space-y-4">
+          <p class="text-xl font-semibold text-gray-800">問題: <%= problem.problemStatement %></p>
+          <form id="generalStudyForm" action="/submit-general-study-answer" method="POST" class="space-y-3">
+            <!-- teachingMaterialsId を studyProblemId として送信 -->
+            <input type="hidden" name="studyProblemId" value="<%= problem.teachingMaterialsId %>">
+            
+            <div class="flex items-center">
+              <input type="radio" id="optionA" name="answer" value="A" class="mr-2">
+              <label for="optionA" class="text-lg"><%= problem.OptionA %></label>
+            </div>
+            <div class="flex items-center">
+              <input type="radio" id="optionB" name="answer" value="B" class="mr-2">
+              <label for="optionB" class="text-lg"><%= problem.OptionB %></label>
+            </div>
+            <div class="flex items-center">
+              <input type="radio" id="optionC" name="answer" value="C" class="mr-2">
+              <label for="optionC" class="text-lg"><%= problem.OptionC %></label>
+            </div>
+            <div class="flex items-center">
+              <input type="radio" id="optionD" name="answer" value="D" class="mr-2">
+              <label for="optionD" class="text-lg"><%= problem.OptionD %></label>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition text-lg font-semibold shadow-md mt-6"
+            >
+              解答する
+            </button>
+          </form>
+        </div>
+      <% } else { %>
+        <p class="text-xl text-gray-600">現在、利用可能な教材がありません。</p>
+      <% } %>
+
+      <!-- メッセージ表示エリア -->
+      <% if (success) { %>
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded" role="alert">
+          <p class="font-bold">結果:</p>
+          <p><%= success %></p>
+        </div>
+      <% } %>
+      <% if (error) { %>
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded" role="alert">
+          <p class="font-bold">エラー！</p>
+          <p><%= error %></p>
+        </div>
+      <% } %>
+
+      <!-- 戻るボタン -->
+      <section class="text-center mt-6">
+        <button
+          onclick="window.location.href='/student'"
+          class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600 transition"
+        >
+          学生用画面に戻る
+        </button>
+      </section>
+    </div>
+  </main>
+
+  <footer class="bg-gray-100">
+    <div class="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
+      <p>&copy; <%= new Date().getFullYear() %> はなみち学習室. All rights reserved.</p>
+      <div class="space-x-4 mt-4 md:mt-0">
+        <a href="/privacy" class="hover:underline">プライバシーポリシー</a>
+        <a href="/terms" class="hover:underline">利用規約</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    let pageStartTime; // 現在のページがロードされた時刻
+    // sessionStorageからセッション全体の学習時間（秒）を取得、なければ0
+    let totalSessionTime = parseFloat(sessionStorage.getItem('totalSessionStudyTime') || '0'); 
+
+    window.onload = function() {
+        pageStartTime = Date.now(); // ページロード時の開始時刻を記録
+        // ページが非表示になったり、再度表示されたりしたときに時間を更新
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+    };
+
+    // ページを離れる直前に時間を更新
+    window.onbeforeunload = function() {
+        updateSessionTime();
+    };
+
+    // セッション時間を更新する関数
+    function updateSessionTime() {
+        if (pageStartTime) {
+            const durationOnPage = (Date.now() - pageStartTime) / 1000; // 現在のページでの滞在時間（秒）
+            totalSessionTime += durationOnPage; // 全体のセッション時間に加算
+            sessionStorage.setItem('totalSessionStudyTime', totalSessionTime.toFixed(0)); // 整数秒で保存
+            pageStartTime = Date.now(); // 次の計算のために開始時刻をリセット
+        }
+    }
+
+    // ページの表示状態が変更されたときのハンドラ
+    function handleVisibilityChange() {
+        if (document.hidden) {
+            // ページが非表示になった場合、時間を更新して一時停止
+            updateSessionTime();
+        } else {
+            // ページが再度表示された場合、計測を再開するために開始時刻をリセット
+            pageStartTime = Date.now();
+        }
+    }
+
+    // ログアウト処理 (このページから直接ログアウトする可能性も考慮)
+    document.getElementById('logoutLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      updateSessionTime(); // ログアウト直前にも最終的な時間を更新
+
+      const finalStudyTime = sessionStorage.getItem('totalSessionStudyTime') || '0';
+
+      fetch('/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accumulatedStudyTime: parseFloat(finalStudyTime) }) // 時間を送信
+      }).then(res => {
+        sessionStorage.removeItem('totalSessionStudyTime'); // ログアウト成功時にセッション時間をクリア
+        if (res.redirected) {
+          window.location.href = res.url;
+        } else {
+          window.location.href = '/';
+        }
+      }).catch(err => {
+        console.error('ログアウトに失敗しました:', err);
+        console.error('ログアウトに失敗しました。');
+      });
+    });
+  </script>
+
+</body>
+</html>

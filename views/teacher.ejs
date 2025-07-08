@@ -21,6 +21,7 @@
     <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
       <h1 class="text-2xl font-bold text-green-600">はなみち学習室</h1>
       <nav class="space-x-6 hidden md:block">
+        <span class="text-gray-700">ようこそ、<%= user.name %> 先生</span>
         <a href="#" id="logoutLink" class="text-gray-700 hover:text-green-600 cursor-pointer">ログアウト</a>
       </nav>
     </div>
@@ -38,11 +39,25 @@
       <!-- タイトル -->
       <h2 class="text-3xl font-bold text-green-700 text-center">先生用管理画面</h2>
 
+      <!-- メッセージ表示エリア -->
+      <% if (success) { %>
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded" role="alert">
+          <p class="font-bold">成功！</p>
+          <p><%= success %></p>
+        </div>
+      <% } %>
+      <% if (error) { %>
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded" role="alert">
+          <p class="font-bold">エラー！</p>
+          <p><%= error %></p>
+        </div>
+      <% } %>
+
       <!-- 学生一覧 -->
       <section>
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-xl font-semibold text-gray-700">学生一覧</h3>
-          <!-- ★★★ 新規学生登録ページへのリンクボタン ★★★ -->
+          <!-- 新規学生登録ページへのリンクボタン -->
           <a href="/add-student" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition font-semibold">
             新規登録
           </a>
@@ -64,11 +79,12 @@
                   <tr class="border-b border-gray-200 hover:bg-gray-100 hover:bg-opacity-50">
                     <td class="px-6 py-4"><%= student.studentId %></td>
                     <td class="px-6 py-4"><%= student.studentName %></td>
-                    <td class="px-6 py-4"><%= student.age %></td>
+                    <td class="px-6 py-4"><%= student.studentAge %></td>
                     <td class="px-6 py-4"><%= student.teacherNameInCharge %></td>
                     <td class="px-6 py-4 text-right">
-                      <form action="/delete/<%= student.studentId %>" method="POST" onsubmit="return confirm('本当にこの生徒を削除しますか？');">
+                      <form action="/delete-student/<%= student.studentId %>" method="POST" onsubmit="return confirm('本当にこの生徒を削除しますか？\n（関連する学習記録も全て削除されます）');">
                         <button type="submit" class="text-red-600 hover:underline">削除</button>
+                        
                       </form>
                     </td>
                   </tr>
@@ -76,6 +92,47 @@
               <% } else { %>
                 <tr>
                   <td colspan="5" class="text-center text-gray-500 py-4">登録された学生がいません。</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 教師一覧セクションを追加 -->
+      <section class="mt-8">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold text-gray-700">教師一覧</h3>
+          <a href="/add-teacher" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition font-semibold">
+            新規教師登録
+          </a>
+        </div>
+        <div class="overflow-x-auto bg-white bg-opacity-70 rounded shadow">
+          <table class="min-w-full text-left text-sm whitespace-nowrap">
+            <thead class="uppercase tracking-wider border-b-2 border-gray-300">
+              <tr>
+                <th scope="col" class="px-6 py-3">教師ID</th>
+                <th scope="col" class="px-6 py-3">氏名</th>
+                <th scope="col" class="px-6 py-3">年齢</th>
+                <th scope="col" class="px-6 py-3 text-right">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (teachers && teachers.length > 0) { %>
+                <% teachers.forEach(teacher => { %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-100 hover:bg-opacity-50">
+                    <td class="px-6 py-4"><%= teacher.teacherId %></td>
+                    <td class="px-6 py-4"><%= teacher.teacherName %></td>
+                    <td class="px-6 py-4"><%= teacher.teacherAge || 'N/A' %></td>
+                    <td class="px-6 py-4 text-right">
+                      <!-- 教師削除機能は実装していませんが、必要であればフォームを追加 -->
+                      <button class="text-gray-400 cursor-not-allowed">削除 (未実装)</button>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="4" class="text-center text-gray-500 py-4">登録された教師がいません。</td>
                 </tr>
               <% } %>
             </tbody>
@@ -104,128 +161,6 @@
         <a href="/terms" class="hover:underline">利用規約</a>
       </div>
     </div>
-  </footer>
-
-  <script>
-    document.getElementById('logoutLink').addEventListener('click', function (e) {
-      e.preventDefault();
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = '/logout';
-      document.body.appendChild(form);
-      form.submit();
-    });
-  </script>
-
-</body>
-</html>
-```
-
----
-
-### ② `add-student.ejs`（新規作成）
-
-`views`フォルダに、以下の内容で`add-student.ejs`という名前のファイルを新しく作成してください。
-
-
-```html
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>新規学生登録 - はなみち学習室</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @font-face {
-      font-family: 'ChalkJP';
-      src: url('/fonts/Chalk-JP.otf') format('opentype');
-      font-weight: normal;
-      font-style: normal;
-      font-display: swap;
-    }
-  </style>
-</head>
-<body class="min-h-screen flex flex-col bg-white text-gray-800" style="font-family: 'ChalkJP', sans-serif;">
-
-  <header class="bg-white shadow-md">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-green-600">はなみち学習室</h1>
-      <nav class="space-x-6 hidden md:block">
-        <a href="#" id="logoutLink" class="text-gray-700 hover:text-green-600 cursor-pointer">ログアウト</a>
-      </nav>
-    </div>
-  </header>
-
-  <main class="flex-grow relative bg-green-50 flex justify-center items-start px-4 py-12">
-    <!-- 背景画像 -->
-    <img
-      src="https://webreak.jp/images/pixabay.com/architecture-0002@1200-675.jpg"
-      alt="教室の背景画像"
-      class="absolute inset-0 w-full h-full object-cover brightness-75"
-    />
-
-    <div class="relative z-10 w-full max-w-2xl space-y-8 bg-white bg-opacity-90 rounded-lg p-8 shadow-lg">
-      <!-- タイトル -->
-      <div class="text-center">
-        <h2 class="text-3xl font-bold text-green-700">新規学生登録</h2>
-        <p class="text-gray-600 mt-2">新しい学生の情報を入力してください。</p>
-      </div>
-      
-      <!-- 学生登録フォーム -->
-      <section>
-        <form action="/add-student" method="POST" class="space-y-4">
-          <!-- 1行目: ユーザーIDと氏名 -->
-          <div class="flex flex-col md:flex-row md:space-x-4">
-            <div class="flex-1">
-              <label for="userId" class="block text-sm font-medium">ユーザーID</label>
-              <input type="text" id="userId" name="userId" required
-                class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" />
-            </div>
-            <div class="flex-1 mt-4 md:mt-0">
-              <label for="studentName" class="block text-sm font-medium">氏名</label>
-              <input type="text" id="studentName" name="studentName" required
-                class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" />
-            </div>
-          </div>
-          <!-- 2行目: パスワードと年齢 -->
-          <div class="flex flex-col md:flex-row md:space-x-4">
-            <div class="flex-1">
-              <label for="password" class="block text-sm font-medium">パスワード</label>
-              <input type="text" id="password" name="password" required
-                class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" />
-            </div>
-            <div class="flex-1 mt-4 md:mt-0">
-              <label for="age" class="block text-sm font-medium">年齢</label>
-              <input type="number" id="age" name="age" required
-                class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" />
-            </div>
-          </div>
-          <button
-            type="submit"
-            class="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition font-semibold"
-          >
-            この内容で登録する
-          </button>
-        </form>
-      </section>
-
-      <!-- 管理画面に戻るリンク -->
-      <div class="text-center">
-          <a href="/teacher" class="text-sm text-gray-600 hover:text-green-700 hover:underline">管理画面に戻る</a>
-      </div>
-    </div>
-  </main>
-
-  <!-- フッター -->
-  <footer class="bg-gray-100">
-    <div class="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
-        <p>&copy; <%= new Date().getFullYear() %> はなみち学習室. All rights reserved.</p>
-        <div class="space-x-4 mt-4 md:mt-0">
-          <a href="/privacy" class="hover:underline">プライバシーポリシー</a>
-          <a href="/terms" class="hover:underline">利用規約</a>
-        </div>
-      </div>
   </footer>
 
   <script>

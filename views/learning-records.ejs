@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>学習記録 - はなみち学習室</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @font-face {
+      font-family: 'ChalkJP';
+      src: url('/fonts/Chalk-JP.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    /* 基本スタイルは既存のものを維持 */
+
+    /* 日ごとの詳細表示のスタイル */
+    .daily-detail-list {
+      list-style: none;
+      padding: 0;
+      text-align: left;
+    }
+    .daily-detail-list li {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      font-size: 1rem; /* text-base */
+      line-height: 1.5rem;
+    }
+    .daily-detail-list li span {
+      font-weight: bold;
+      color: #2563eb; /* blue-600 */
+    }
+    .no-daily-record-message {
+      color: #888;
+      font-size: 1rem;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .nav-button {
+      background-color: #60a5fa; /* blue-400 */
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+    .nav-button:hover {
+      background-color: #3b82f6; /* blue-500 */
+    }
+    .nav-button:disabled {
+      background-color: #a3a3a3; /* gray-400 */
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-white text-gray-800" style="font-family: 'ChalkJP', sans-serif;">
+
+  <header class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-green-600">はなみち学習室</h1>
+      <nav class="space-x-6 hidden md:flex items-center">
+        <span class="text-gray-700">ようこそ、<%= user.name %> さん</span>
+        <a href="#" id="logoutLink" class="text-gray-700 hover:text-green-600 cursor-pointer">ログアウト</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-grow relative bg-green-50 flex justify-center items-start px-4 py-12">
+    <!-- 背景画像 -->
+    <img
+      src="https://webreak.jp/images/pixabay.com/architecture-0002@1200-675.jpg"
+      alt="教室の背景画像"
+      class="absolute inset-0 w-full h-full object-cover brightness-75"
+    />
+
+    <div class="relative z-10 w-full max-w-5xl space-y-8 bg-white bg-opacity-90 rounded-lg p-8 shadow-lg">
+      <!-- タイトル -->
+      <h2 class="text-3xl font-bold text-green-700 text-center">学習記録</h2>
+
+      <!-- これまでの学習成果表示エリア -->
+      <% if (user.role === 'student' || user.role === 'teacher') { %>
+        <section class="bg-blue-50 bg-opacity-80 p-4 rounded-lg shadow-inner text-left text-sm mb-6">
+          <h3 class="font-semibold text-blue-800 text-lg mb-2">これまでの学習成果 (全期間):</h3>
+          <ul class="list-disc list-inside text-gray-700 space-y-1">
+            <li>総問題数: <span class="font-bold"><%= totalQuestions %></span> 問</li>
+            <li>正解数: <span class="font-bold"><%= totalCorrectAnswers %></span> 問</li>
+            <li>正答率: <span class="font-bold text-green-700 text-xl"><%= correctAnswerRate %>%</span></li>
+          </ul>
+        </section>
+      <% } %>
+
+      <!-- 日ごとの学習詳細表示エリア -->
+      <section id="dailyDetailSection" class="mt-8">
+        <div class="flex justify-between items-center mb-4">
+            <button id="prevDayBtn" class="nav-button">&lt; 前日</button>
+            <h3 class="text-xl font-semibold text-gray-700 text-center">
+                <span id="currentDateDisplay"><%= selectedDate %></span> の学習詳細
+            </h3>
+            <button id="nextDayBtn" class="nav-button">次日 &gt;</button>
+        </div>
+        
+        <div class="bg-white bg-opacity-70 rounded shadow p-4">
+          <ul id="dailyDetailList" class="daily-detail-list">
+            <% if (dailyRecord) { %>
+                <li>学習日: <span><%= dailyRecord.studyDate %></span></li>
+                <li>その日の総問題数: <span><%= dailyRecord.dailyTotalQuestions %></span> 問</li>
+                <li>その日の正解数: <span><%= dailyRecord.dailyCorrectAnswers %></span> 問</li>
+                <li>塾の学習(仮)活動: <span><%= dailyRecord.hasCramSchoolStudy === 1 ? '取り組んだ' : '取り組めなかった' %></span></li>
+                <li>一般教材活動: <span><%= dailyRecord.hasTeachingMaterialStudy === 1 ? '取り組んだ' : '取り組めなかった' %></span></li>
+                <li>AI個別学習活動: <span><%= dailyRecord.hasAIProblemStudy === 1 ? '取り組んだ' : '取り組めなかった' %></span></li>
+                <li>学習時間: <span><%= dailyRecord.totalStudyTimeMinutes %></span> 分</li>
+                <li>正答率 (日ごと): <span>
+                    <% if (dailyRecord.dailyTotalQuestions > 0) { %>
+                        <%= ((dailyRecord.dailyCorrectAnswers / dailyRecord.dailyTotalQuestions) * 100).toFixed(2) %>%
+                    <% } else { %>
+                        N/A
+                    <% } %>
+                </span></li>
+            <% } else { %>
+                <p id="noDailyRecordMessage" class="no-daily-record-message">
+                    <%= selectedDate %> の学習記録はありません。
+                </p>
+            <% } %>
+          </ul>
+        </div>
+      </section>
+      
+      <!-- 戻るボタン -->
+      <section class="text-center mt-6">
+        <button
+          onclick="window.history.back()"
+          class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600 transition"
+        >
+          戻る
+        </button>
+      </section>
+    </div>
+  </main>
+
+  <!-- フッター -->
+  <footer class="bg-gray-100">
+    <div class="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
+      <p>&copy; <%= new Date().getFullYear() %> はなみち学習室. All rights reserved.</p>
+      <div class="space-x-4 mt-4 md:mt-0">
+        <a href="/privacy" class="hover:underline">プライバシーポリシー</a>
+        <a href="/terms" class="hover:underline">利用規約</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ログアウト処理
+    document.getElementById('logoutLink').addEventListener('click', function (e) {
+      e.preventDefault();
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/logout';
+      document.body.appendChild(form);
+      form.submit();
+    });
+
+    // --- 日付ナビゲーションのスクリプト ---
+    const currentDateDisplay = document.getElementById('currentDateDisplay');
+    const prevDayBtn = document.getElementById('prevDayBtn');
+    const nextDayBtn = document.getElementById('nextDayBtn');
+
+    // 現在表示されている日付をDateオブジェクトとして取得
+    // EJSから渡された selectedDate を使用
+    let currentDisplayDate = new Date('<%= selectedDate %>');
+    
+    // 今日の日付 (時刻なし)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // ナビゲーションボタンのイベントリスナー
+    prevDayBtn.addEventListener('click', () => {
+        currentDisplayDate.setDate(currentDisplayDate.getDate() - 1);
+        navigateToDate(currentDisplayDate);
+    });
+
+    nextDayBtn.addEventListener('click', () => {
+        currentDisplayDate.setDate(currentDisplayDate.getDate() + 1);
+        navigateToDate(currentDisplayDate);
+    });
+
+    /**
+     * 指定された日付の学習記録ページに遷移します。
+     * @param {Date} date - 遷移したい日付のDateオブジェクト
+     */
+    function navigateToDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // 月は0-11なので+1
+        const day = String(date.getDate()).padStart(2, '0');
+        const dateString = `${year}-${month}-${day}`;
+        window.location.href = `/learning-records?date=${dateString}`;
+    }
+
+    // ページロード時に次日ボタンの有効/無効をチェック
+    function updateNavButtons() {
+        // 次日ボタンは今日より未来の日付には進めない
+        const nextDay = new Date(currentDisplayDate);
+        nextDay.setDate(currentDisplayDate.getDate() + 1);
+        nextDay.setHours(0, 0, 0, 0); // 時刻をリセットして比較
+
+        if (nextDay > today) {
+            nextDayBtn.disabled = true;
+        } else {
+            nextDayBtn.disabled = false;
+        }
+        // 前日ボタンは常に有効（過去には無限に進める）
+        prevDayBtn.disabled = false;
+    }
+
+    // 初期表示時と日付変更時にボタンの状態を更新
+    updateNavButtons();
+
+  </script>
+
+</body>
+</html>
