@@ -74,13 +74,14 @@ module.exports = {
    */
   createSelfLearningTable: `
     CREATE TABLE IF NOT EXISTS self_learning (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      studentId TEXT NOT NULL,
-      teachingMaterialsId TEXT NOT NULL,
-      answer TEXT NOT NULL,
-      correction TEXT NOT NULL,
+      studentId           TEXT,
+      teachingMaterialsId INTEGER,
+      answer              TEXT,
+      correction          TEXT,
       timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (studentId) REFERENCES students(studentId)
+      PRIMARY KEY (studentId, teachingMaterialsId),
+      FOREIGN KEY (studentId) REFERENCES students (studentId),
+      FOREIGN KEY (teachingMaterialsId) REFERENCES teachingMaterials (teachingMaterialsId)
     );
   `,
 
@@ -131,6 +132,7 @@ module.exports = {
       hasCramSchoolStudy   INTEGER DEFAULT 0,
       hasTeachingMaterialStudy INTEGER DEFAULT 0,
       hasAIProblemStudy    INTEGER DEFAULT 0,
+      timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (studentId) REFERENCES students (studentId),
       UNIQUE (studentId, studyDate)
     );
